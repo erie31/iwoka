@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "iwoka",
     "public": "dist",
     "ignore": [
       "firebase.json",
