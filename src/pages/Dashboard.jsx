@@ -37,7 +37,7 @@ export default function Dashboard() {
       <header className="flex justify-between items-end mb-8 pt-4">
         <div>
           <h1 className="text-3xl font-black italic tracking-tight text-white uppercase">
-            Hola, {userData.name}
+            Hola, {userData.nickname || userData.name}
           </h1>
           <p className="text-iwoka-500 font-medium">Atleta IWOKA</p>
         </div>
@@ -89,7 +89,7 @@ export default function Dashboard() {
         </div>
 
         <button 
-          onClick={() => navigate('/scanner')}
+          onClick={(e) => { e.stopPropagation(); navigate('/scanner'); }}
           className="w-full bg-white text-gray-950 hover:bg-gray-200 font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg"
         >
           <Camera size={24} />

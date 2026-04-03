@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 export default function Login() {
-  const { loginWithGoogle, loginWithEmail, registerWithEmail } = useAuth();
+  const { loginWithGoogle, loginWithEmail, registerWithEmail, authError } = useAuth();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -39,6 +39,8 @@ export default function Login() {
     }
   };
 
+  const displayError = authError || error;
+
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col justify-center items-center p-4 relative overflow-hidden">
       {/* Background decoration */}
@@ -53,7 +55,7 @@ export default function Login() {
           <h2 className="text-3xl font-black text-center text-white tracking-tight mb-2 uppercase italic">IWOKA Fitness</h2>
           <p className="text-gray-400 text-center mb-8 text-sm">Ingresa a tu ecosistema de entrenamiento</p>
 
-          {error && <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg text-sm mb-6 text-center">{error}</div>}
+          {displayError && <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg text-sm mb-6 text-center">{displayError}</div>}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

@@ -79,7 +79,7 @@ export default function AdminDashboard() {
             <CreditCard size={40} />
           </div>
           <div className="text-center">
-            <h2 className="font-bold text-white text-lg">Finanzas / Pagos</h2>
+            <h2 className="font-bold text-white text-lg">Cargar Clases</h2>
             <p className="text-gray-400 text-sm italic uppercase font-black text-[10px]">Créditos y Abonos</p>
           </div>
         </button>

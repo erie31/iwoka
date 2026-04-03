@@ -69,6 +69,7 @@ function AppRoutes() {
           <Route path="admin/qr" element={<QRProjector />} />
           <Route path="admin/wod" element={<WodManager />} />
           <Route path="admin/athletes" element={<AthleteManager />} />
+          <Route path="admin/classes" element={<ClassManager />} />
           <Route path="admin/monitor" element={<Monitor />} />
           <Route path="admin/rewards" element={<AdminGamification />} />
           <Route path="admin/photos" element={<AdminPhotoReview />} />

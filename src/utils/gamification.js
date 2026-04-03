@@ -7,7 +7,7 @@ export const ACHIEVEMENTS = [
   { id: 'level_10', name: 'Aprendiz', description: 'Llegar al Nivel 10.', icon: '🥉', secret: false },
   { id: 'level_30', name: 'Veterano', description: 'Llegar al Nivel 30.', icon: '🥈', secret: false },
   { id: 'level_50', name: 'Leyenda IWOKA', description: 'Llegar al Nivel 50.', icon: '🥇', secret: false },
-  { id: 'photo_first', name: 'Como te ven te tratan', description: 'Sube tu primer foto de perfil para que todos te reconozcan.', icon: '📸', secret: false },
+  { id: 'photo_first', name: 'Como te ven te tratan', description: 'Completa tu perfil (identidad y foto) para que el staff pueda reconocerte.', icon: '📸', secret: false },
   
   // Logros Especiales / Secretos
   { id: 'saturday_hero', name: 'Hermosa Mañana Verdad?', description: '¿???', secretDescription: 'Asistir todos los sábados de un mes completo.', icon: '🌅', secret: true },
@@ -18,6 +18,69 @@ export const ACHIEVEMENTS = [
   { id: 'secret_3', name: 'Secreto', description: '???', icon: '❓', secret: true },
   { id: 'secret_4', name: 'Secreto', description: '???', icon: '❓', secret: true },
   { id: 'secret_5', name: 'Secreto', description: '???', icon: '❓', secret: true },
+];
+
+export const BANNERS = [
+    { 
+        id: 'default', 
+        name: 'IWOKA Classic', 
+        url: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=2669&auto=format&fit=crop',
+        requirement: null 
+    },
+    { 
+        id: 'box_spirit', 
+        name: 'Espíritu IWOKA', 
+        url: 'https://images.unsplash.com/photo-1594882645126-14020914d58d?q=80&w=2685&auto=format&fit=crop',
+        requirement: null 
+    },
+    { 
+        id: 'first_step', 
+        name: 'Primer Paso', 
+        url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop',
+        requirement: 'first_class' 
+    },
+    { 
+        id: 'iron_discipline', 
+        name: 'Disciplina de Hierro', 
+        url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2670&auto=format&fit=crop',
+        requirement: 'level_10' 
+    },
+    { 
+        id: 'morning_ritual', 
+        name: 'Ritual Mañanero', 
+        url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2670&auto=format&fit=crop',
+        requirement: 'saturday_hero' 
+    },
+    { 
+        id: 'early_sun', 
+        name: 'Sol de Mañana', 
+        url: 'https://images.unsplash.com/photo-1541534401786-2077dee30a74?q=80&w=2669&auto=format&fit=crop',
+        requirement: 'early_bird' 
+    },
+    { 
+        id: 'neon_strength', 
+        name: 'Fuerza Neón', 
+        url: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2670&auto=format&fit=crop',
+        requirement: 'level_30' 
+    },
+    { 
+        id: 'dark_box', 
+        name: 'Box Nocturno', 
+        url: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=2670&auto=format&fit=crop',
+        requirement: 'night_owl'
+    },
+    { 
+        id: 'unstoppable', 
+        name: 'Imparable', 
+        url: 'https://images.unsplash.com/photo-1594882645126-14020914d58d?q=80&w=2685&auto=format&fit=crop',
+        requirement: 'constant_5'
+    },
+    { 
+        id: 'legendary', 
+        name: 'Leyenda IWOKA', 
+        url: 'https://images.unsplash.com/photo-1623910380170-fc21ba6e680a?q=80&w=2671&auto=format&fit=crop',
+        requirement: 'level_50'
+    }
 ];
 
 export const getLevelInfo = (level) => {

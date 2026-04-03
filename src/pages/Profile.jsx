@@ -1,6 +1,6 @@
 import { useAuth } from '../contexts/AuthContext';
-import { ACHIEVEMENTS, getLevelInfo, getExpForLevel } from '../utils/gamification';
-import { Trophy, Medal, Star, Shield, Zap, Lock, Info, CheckCircle2, Camera, Loader2, Image as ImageIcon, Trash2, Check, AlertCircle } from 'lucide-react';
+import { ACHIEVEMENTS, getLevelInfo, getExpForLevel, BANNERS } from '../utils/gamification';
+import { Trophy, Medal, Star, Shield, Zap, Lock, Info, CheckCircle2, Camera, Loader2, Image as ImageIcon, Trash2, Check, AlertCircle, User } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { db, storage } from '../firebase';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
@@ -10,6 +10,10 @@ export default function Profile() {
   const { userData, currentUser } = useAuth();
   const [showTooltip, setShowTooltip] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [firstName, setFirstName] = useState(userData.firstName || '');
+  const [lastName, setLastName] = useState(userData.lastName || '');
+  const [nickname, setNickname] = useState(userData.nickname || '');
+  const [savingIdentity, setSavingIdentity] = useState(false);
   const fileInputRef = useRef();
 
   if (!userData) return null;
@@ -40,13 +44,19 @@ export default function Profile() {
         const downloadURL = await getDownloadURL(storageRef);
 
         const userRef = doc(db, 'users', currentUser.uid);
-        await updateDoc(userRef, {
+        const updates = {
             pendingPhoto: {
                 url: downloadURL,
                 timestamp: new Date().toISOString()
-            },
-            achievements: arrayUnion('photo_first')
-        });
+            }
+        };
+
+        // Achievement check: If Identity is already set, grant now
+        if (userData.firstName && userData.lastName && !earnedAchievementIds.includes('photo_first')) {
+            updates.achievements = arrayUnion('photo_first');
+        }
+
+        await updateDoc(userRef, updates);
         alert("¡Foto enviada! El staff la revisará pronto.");
     } catch (err) {
         console.error(err);
@@ -61,6 +71,44 @@ export default function Profile() {
             selectedPhoto: url
         });
     } catch (err) { console.error(err); }
+  };
+
+  const selectActiveBanner = async (url) => {
+    try {
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+            selectedBanner: url
+        });
+    } catch (err) { console.error(err); }
+  };
+
+  const savePersonalData = async () => {
+    if (!firstName.trim() || !lastName.trim()) {
+        alert("Nombre y Apellido son obligatorios para uso administrativo.");
+        return;
+    }
+
+    setSavingIdentity(true);
+    try {
+        const userRef = doc(db, 'users', currentUser.uid);
+        const updates = {
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            nickname: nickname.trim() || null
+        };
+
+        // Achievement Logic: Identity + Photo
+        const hasPhoto = userData.selectedPhoto || userData.pendingPhoto;
+        if (hasPhoto && !earnedAchievementIds.includes('photo_first')) {
+            updates.achievements = arrayUnion('photo_first');
+        }
+
+        await updateDoc(userRef, updates);
+        alert("¡Perfil actualizado!");
+    } catch (err) {
+        console.error(err);
+        alert("Error al guardar.");
+    }
+    setSavingIdentity(false);
   };
 
   return (
@@ -135,6 +183,77 @@ export default function Profile() {
                 </div>
             </div>
         </div>
+      </section>
+
+      {/* Identity Form */}
+      <section className="bg-gray-900 border border-gray-800 rounded-3xl p-8 space-y-6 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover:rotate-12 transition-transform">
+             <User size={120} className="text-white" />
+          </div>
+          
+          <header className="flex justify-between items-start">
+              <div>
+                  <h2 className="text-sm font-black italic text-white uppercase tracking-widest flex items-center gap-2">
+                      <Shield size={16} className={`text-iwoka-500 ${userData.firstName && 'animate-pulse'}`} /> Identidad del Atleta
+                  </h2>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Uso Administrativo y de Carga</p>
+              </div>
+              {userData.firstName && (
+                  <span className="flex items-center gap-1 bg-iwoka-500/10 text-iwoka-500 px-3 py-1 rounded-full text-[8px] font-black uppercase border border-iwoka-500/20">
+                      <Check size={8} /> Verificado por Staff
+                  </span>
+              )}
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+              <div className="space-y-2">
+                  <label className={`text-[10px] uppercase font-black tracking-widest ml-1 ${userData.firstName ? 'text-gray-600' : 'text-gray-500'}`}>Nombre (Real)</label>
+                  <input 
+                    type="text" 
+                    className={`w-full bg-gray-950 border rounded-xl py-3 px-4 text-white font-bold outline-none transition-all ${userData.firstName ? 'border-gray-900 text-gray-500 cursor-not-allowed opacity-50' : 'border-gray-800 focus:border-iwoka-500'}`}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    disabled={!!userData.firstName}
+                  />
+              </div>
+              <div className="space-y-2">
+                  <label className={`text-[10px] uppercase font-black tracking-widest ml-1 ${userData.lastName ? 'text-gray-600' : 'text-gray-500'}`}>Apellido (Real)</label>
+                  <input 
+                    type="text" 
+                    className={`w-full bg-gray-950 border rounded-xl py-3 px-4 text-white font-bold outline-none transition-all ${userData.lastName ? 'border-gray-900 text-gray-500 cursor-not-allowed opacity-50' : 'border-gray-800 focus:border-iwoka-500'}`}
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    disabled={!!userData.lastName}
+                  />
+              </div>
+              <div className="space-y-2">
+                  <label className="text-[10px] text-iwoka-500 uppercase font-black tracking-widest ml-1 flex items-center gap-2">
+                      <Zap size={10} /> Apodo (Público)
+                  </label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-iwoka-500/5 border border-iwoka-500/20 rounded-xl py-3 px-4 text-iwoka-400 font-bold focus:border-iwoka-500 outline-none transition-colors italic"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                  />
+              </div>
+          </div>
+
+          {/* Show save button if anything changed or if name is not set */}
+          {(!userData.firstName || !userData.lastName || userData.nickname !== nickname) && (
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <button 
+                    onClick={savePersonalData}
+                    disabled={savingIdentity}
+                    className="w-full md:w-auto px-10 py-4 bg-iwoka-500 text-gray-950 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-iwoka-600 transition-all shadow-lg active:scale-95 disabled:opacity-50"
+                  >
+                        {savingIdentity ? 'Guardando...' : (userData.firstName ? 'Actualizar Apodo' : 'Guardar Información')}
+                  </button>
+                  {userData.firstName && (
+                      <p className="text-[10px] text-gray-600 italic font-medium">Nombre Real vinculado a la cuenta. Contacta al Staff para cambiarlo.</p>
+                  )}
+              </div>
+          )}
       </section>
 
       {/* Profile Customization Section */}
@@ -223,12 +342,11 @@ export default function Profile() {
       </div>
 
       {/* Main Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {[
             { label: 'Clases Totales', val: userData.clases?.todas || 0, icon: <Zap size={20} className="text-iwoka-500" /> },
             { label: 'Logros Ganados', val: earnedAchievementIds.length, icon: <Medal size={20} className="text-yellow-500" /> },
-            { label: 'Sábados Mes', val: (userData.saturdayCheckins?.filter(d => d.startsWith(new Date().toISOString().substring(0,7))).length || 0), icon: <Star size={20} className="text-orange-500" /> },
-            { label: 'Rango Box', val: '#12', icon: <Shield size={20} className="text-blue-500" /> },
+            { label: 'Rango Box', val: `#${10 + Math.floor(userData.exp / 1000)}`, icon: <Shield size={20} className="text-blue-500" /> },
         ].map((stat, i) => (
             <div key={i} className="bg-gray-900 border border-gray-800 rounded-2xl p-5 flex flex-col items-center justify-center text-center gap-2 hover:border-gray-600 transition-colors cursor-default group transition-all hover:-translate-y-1">
                 <div className="bg-gray-950 p-2 rounded-lg border border-gray-800 group-hover:scale-110 transition-transform">
@@ -241,6 +359,51 @@ export default function Profile() {
             </div>
         ))}
       </div>
+
+      {/* Banner Selection Section */}
+      <section className="bg-gray-900 border border-gray-800 rounded-3xl p-6 space-y-6">
+          <div className="flex justify-between items-center">
+              <h3 className="text-xs font-black uppercase text-gray-500 tracking-widest flex items-center gap-2">
+                  <ImageIcon size={14} /> Banners de Perfil ({BANNERS.filter(b => !b.requirement || earnedAchievementIds.includes(b.requirement)).length}/{BANNERS.length})
+              </h3>
+              <p className="text-[9px] text-gray-600 font-bold uppercase italic">Desbloquea logros para obtener banners exclusivos</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {BANNERS.map((banner) => {
+                  const isUnlocked = !banner.requirement || earnedAchievementIds.includes(banner.requirement);
+                  const isActive = userData.selectedBanner === banner.url || (!userData.selectedBanner && banner.id === 'default');
+
+                  return (
+                      <div 
+                        key={banner.id}
+                        onClick={() => isUnlocked && selectActiveBanner(banner.url)}
+                        className={`group relative h-24 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer ${
+                            isUnlocked 
+                                ? (isActive ? 'border-iwoka-500 shadow-xl scale-[1.02]' : 'border-gray-800 hover:border-gray-500 hover:scale-[1.01]') 
+                                : 'border-gray-900 opacity-40 grayscale cursor-not-allowed'
+                        }`}
+                      >
+                          <img src={banner.url} className="w-full h-full object-cover" alt={banner.name} />
+                          <div className={`absolute inset-0 flex flex-col items-center justify-center bg-gray-950/40 backdrop-blur-[1px] transition-opacity pointer-events-none ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              <p className="text-[10px] font-black uppercase text-white shadow-lg tracking-widest">{banner.name}</p>
+                              {!isUnlocked && (
+                                  <div className="flex items-center gap-1 mt-1 text-red-400">
+                                      <Lock size={10} />
+                                      <span className="text-[8px] font-black uppercase">Bloqueado</span>
+                                  </div>
+                              )}
+                              {isActive && isUnlocked && (
+                                  <div className="mt-1 bg-iwoka-500 text-gray-950 px-2 py-0.5 rounded text-[8px] font-black uppercase flex items-center gap-1 shadow-lg">
+                                      <Check size={8} /> Equipado
+                                  </div>
+                              )}
+                          </div>
+                      </div>
+                  )
+              })}
+          </div>
+      </section>
 
       {/* Achievements Table - Steam Grid */}
       <section className="bg-gray-900 border border-gray-800 rounded-3xl p-8 space-y-8 shadow-2xl relative overflow-hidden">

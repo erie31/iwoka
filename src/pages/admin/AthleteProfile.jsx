@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { db } from '../../firebase';
-import { collection, query, getDocs, where, orderBy, limit, doc, updateDoc, writeBatch, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { collection, query, getDoc, getDocs, where, orderBy, limit, doc, updateDoc, writeBatch, serverTimestamp, deleteDoc } from 'firebase/firestore';
 import { ArrowLeft, User, Calendar, Activity, Clock, ShoppingCart, UserCheck, Edit3, X, Check, Landmark, CircleDollarSign, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export default function AthleteProfile({ athlete, onBack }) {
   const [transactions, setTransactions] = useState([]);
+  const [athleteData, setAthleteData] = useState(athlete);
   const [loading, setLoading] = useState(true);
   const [editingTransaction, setEditingTransaction] = useState(null);
   
@@ -15,6 +16,13 @@ export default function AthleteProfile({ athlete, onBack }) {
   const [editStatus, setEditStatus] = useState(true);
   const [editMethod, setEditMethod] = useState('efectivo');
 
+  // Admin Profile Edit States
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [adminEditFirstName, setAdminEditFirstName] = useState('');
+  const [adminEditLastName, setAdminEditLastName] = useState('');
+  const [adminEditNickname, setAdminEditNickname] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+
   useEffect(() => {
     fetchTransactions();
   }, [athlete.id]);
@@ -22,6 +30,13 @@ export default function AthleteProfile({ athlete, onBack }) {
   const fetchTransactions = async () => {
     setLoading(true);
     try {
+      // 1. Refresh Athlete Data (Saldo)
+      const userSnap = await getDoc(doc(db, 'users', athlete.id));
+      if (userSnap.exists()) {
+        setAthleteData({ id: userSnap.id, ...userSnap.data() });
+      }
+
+      // 2. Refresh Transactions
       const q = query(
         collection(db, 'transactions'),
         where('userId', '==', athlete.id),
@@ -90,12 +105,74 @@ export default function AthleteProfile({ athlete, onBack }) {
     setLoading(false);
   };
 
+  const startProfileEdit = () => {
+    setAdminEditFirstName(athleteData.firstName || '');
+    setAdminEditLastName(athleteData.lastName || '');
+    setAdminEditNickname(athleteData.nickname || '');
+    setIsEditingProfile(true);
+  };
+
+  const saveProfileAdmin = async () => {
+    setSavingProfile(true);
+    try {
+        await updateDoc(doc(db, 'users', athlete.id), {
+            firstName: adminEditFirstName.trim() || null,
+            lastName: adminEditLastName.trim() || null,
+            nickname: adminEditNickname.trim() || null
+        });
+        setIsEditingProfile(false);
+        fetchTransactions(); // Refresh UI
+    } catch (err) { console.error(err); }
+    setSavingProfile(false);
+  };
+
   const deleteTransaction = async (t) => {
-      if (!confirm('¿Seguro quieres ELIMINAR este registro? Esto NO revertirá el saldo del usuario automáticamente. Úsalo solo para registros duplicados o errores críticos.')) return;
+      const confirmMsg = t.type === 'PURCHASE' 
+        ? '¿Seguro quieres ELIMINAR esta carga? Se RESTARÁN las clases del saldo actual del atleta.' 
+        : '¿Seguro quieres ELIMINAR esta asistencia? Se DEVOLVERÁ la clase al saldo del atleta.';
+        
+      if (!confirm(confirmMsg)) return;
+
+      setLoading(true);
       try {
-        await deleteDoc(doc(db, 'transactions', t.id));
+        const batch = writeBatch(db);
+        const transRef = doc(db, 'transactions', t.id);
+        const userRef = doc(db, 'users', athlete.id);
+
+        // Fetch latest user data to ensure correct balance sync
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const newClases = { ...(userData.clases || { todas: 0, crossfit: 0, hyrox: 0, personalizado: 0 }) };
+          const activities = t.activities || ['todas'];
+          const amount = Number(t.amount || 0);
+
+          if (t.type === 'PURCHASE') {
+            // Revertir carga: Restar del saldo
+            activities.forEach(act => {
+              newClases[act] = Math.max(0, (newClases[act] || 0) - amount);
+            });
+          } else if (t.type === 'CONSUMPTION') {
+            // Revertir consumo: Devolver al saldo
+            activities.forEach(act => {
+              newClases[act] = (newClases[act] || 0) + amount;
+            });
+          }
+
+          batch.update(userRef, { clases: newClases });
+        }
+
+        batch.delete(transRef);
+        await batch.commit();
+        
         fetchTransactions();
-      } catch (err) { console.error(err); }
+        // Nota: El saldo visual en la cabecera se actualizará al volver o si refrescamos el prop.
+        // Para una mejor UX, podríamos avisar al usuario o recargar el componente.
+      } catch (err) { 
+        console.error("Error deleting transaction:", err);
+        alert("Error al eliminar el registro.");
+      }
+      setLoading(false);
   };
 
   const getTransactionIcon = (type) => {
@@ -114,7 +191,7 @@ export default function AthleteProfile({ athlete, onBack }) {
     }
   };
 
-  const currentClases = athlete.clases || { todas: 0, crossfit: 0, hyrox: 0, personalizado: 0 };
+  const currentClases = athleteData.clases || { todas: 0, crossfit: 0, hyrox: 0, personalizado: 0 };
 
   return (
     <div className="animate-fade-in space-y-6 pb-20">
@@ -134,12 +211,57 @@ export default function AthleteProfile({ athlete, onBack }) {
           <User size={48} className="text-iwoka-500" />
         </div>
         
-        <div className="flex-1 space-y-1">
-          <h1 className="text-3xl font-black text-white italic uppercase tracking-tighter">{athlete.name}</h1>
-          <p className="text-gray-500 font-medium">{athlete.email}</p>
+        <div className="flex-1 space-y-1 z-10 w-full">
+          {isEditingProfile ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 py-2">
+                <input 
+                    type="text" 
+                    className="bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-white font-bold text-sm"
+                    value={adminEditFirstName}
+                    onChange={(e) => setAdminEditFirstName(e.target.value)}
+                    placeholder="Nombre"
+                />
+                <input 
+                    type="text" 
+                    className="bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-white font-bold text-sm"
+                    value={adminEditLastName}
+                    onChange={(e) => setAdminEditLastName(e.target.value)}
+                    placeholder="Apellido"
+                />
+                <input 
+                    type="text" 
+                    className="bg-gray-950 border border-iwoka-500/20 rounded-lg px-3 py-2 text-iwoka-500 font-bold text-sm italic"
+                    value={adminEditNickname}
+                    onChange={(e) => setAdminEditNickname(e.target.value)}
+                    placeholder="Apodo"
+                />
+                <div className="md:col-span-3 flex gap-2 mt-2">
+                    <button onClick={saveProfileAdmin} disabled={savingProfile} className="bg-iwoka-500 text-gray-950 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase">
+                        {savingProfile ? 'Guardando...' : 'Guardar'}
+                    </button>
+                    <button onClick={() => setIsEditingProfile(false)} className="bg-gray-800 text-gray-400 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+          ) : (
+            <>
+                <div className="flex items-center justify-between w-full">
+                    <h1 className="text-3xl font-black text-white italic uppercase tracking-tighter">
+                        {athleteData.firstName ? `${athleteData.firstName} ${athleteData.lastName}` : athleteData.name}
+                        {athleteData.nickname && <span className="text-iwoka-500 text-sm ml-3 italic">"{athleteData.nickname}"</span>}
+                    </h1>
+                    <button onClick={startProfileEdit} className="p-2 text-gray-600 hover:text-white transition-colors bg-gray-800 rounded-lg">
+                        <Edit3 size={16} />
+                    </button>
+                </div>
+                <p className="text-gray-500 font-medium">{athleteData.email}</p>
+            </>
+          )}
+
           <div className="flex flex-wrap gap-3 mt-4">
-            <span className="bg-iwoka-500/10 text-iwoka-500 px-3 py-1 rounded-full text-[10px] font-black uppercase border border-iwoka-500/20">Lvl {athlete.level}</span>
-            <p className="text-[10px] text-gray-400 font-black uppercase">Vence: {athlete.vencimiento?.split('-').reverse().join('/') || 'N/A'}</p>
+            <span className="bg-iwoka-500/10 text-iwoka-500 px-3 py-1 rounded-full text-[10px] font-black uppercase border border-iwoka-500/20">Lvl {athleteData.level}</span>
+            <p className="text-[10px] text-gray-400 font-black uppercase">Vence: {athleteData.vencimiento?.split('-').reverse().join('/') || 'N/A'}</p>
           </div>
         </div>
       </header>

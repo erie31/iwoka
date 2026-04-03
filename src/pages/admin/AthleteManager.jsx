@@ -71,7 +71,10 @@ export default function AthleteManager() {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         if (data.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-            data.email.toLowerCase().includes(searchTerm.toLowerCase())) {
+            data.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.nickname?.toLowerCase().includes(searchTerm.toLowerCase())) {
           results.push({ id: doc.id, ...data });
         }
       });
@@ -193,7 +196,10 @@ export default function AthleteManager() {
                     <User size={24} className="text-iwoka-500" />
                   </div>
                   <div>
-                    <h3 className="font-black text-white text-lg leading-tight uppercase italic">{athlete.name}</h3>
+                    <h3 className="font-black text-white text-lg leading-tight uppercase italic">
+                        {athlete.firstName ? `${athlete.firstName} ${athlete.lastName}` : athlete.name}
+                        {athlete.nickname && <span className="text-[10px] text-iwoka-500 ml-2">"{athlete.nickname}"</span>}
+                    </h3>
                     <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
                       Vence: {athlete.vencimiento ? athlete.vencimiento.split('-').reverse().join('/') : 'N/A'}
                     </p>
