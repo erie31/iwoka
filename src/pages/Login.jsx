@@ -58,8 +58,11 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <input 
+                id="email"
+                name="email"
                 type="email" 
                 required
+                autoComplete="email"
                 className="w-full bg-gray-950 border border-gray-800 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-iwoka-500 focus:ring-1 focus:ring-iwoka-500 transition-colors"
                 placeholder="Email"
                 value={email}
@@ -68,8 +71,11 @@ export default function Login() {
             </div>
             <div>
               <input 
+                id="password"
+                name="password"
                 type="password" 
                 required
+                autoComplete="current-password"
                 className="w-full bg-gray-950 border border-gray-800 text-white rounded-lg px-4 py-3 focus:outline-none focus:border-iwoka-500 focus:ring-1 focus:ring-iwoka-500 transition-colors"
                 placeholder="Contraseña"
                 value={password}

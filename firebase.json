@@ -1,17 +1,29 @@
 {
-  "hosting": {
-    "site": "iwoka",
-    "public": "dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
-  }
+  "hosting": [
+    {
+      "site": "iwoka",
+      "public": "dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    },
+    {
+      "site": "iwoka-515dc",
+      "redirects": [
+        {
+          "source": "**",
+          "destination": "https://iwoka.web.app",
+          "type": 301
+        }
+      ]
+    }
+  ]
 }
