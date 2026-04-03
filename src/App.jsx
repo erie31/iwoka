@@ -6,10 +6,16 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import PendingUsers from './pages/admin/PendingUsers';
 import QRProjector from './pages/admin/QRProjector';
+import WodManager from './pages/admin/WodManager';
+import AthleteManager from './pages/admin/AthleteManager';
+import ClassManager from './pages/admin/ClassManager';
+import Monitor from './pages/admin/Monitor';
+import AdminGamification from './pages/admin/AdminGamification';
+import Calendar from './pages/Calendar';
 import Layout from './components/Layout';
-// Mock components for now
-const ScannerView = () => <div className="animate-fade-in"><h1 className="text-2xl font-bold mb-4">Lector Escáner QR</h1><p className="text-gray-400">Escaneando Presentismo...</p></div>;
-const CalendarView = () => <div className="animate-fade-in"><h1 className="text-2xl font-bold mb-4">Calendario y Reservas</h1><p className="text-gray-400">Muro de la fama y turnos de las clases.</p></div>;
+import Scanner from './pages/Scanner';
+import Profile from './pages/Profile';
+import Achievements from './pages/Achievements';
 
 function RoleBasedDashboard() {
   const { userData } = useAuth();
@@ -44,10 +50,14 @@ function AppRoutes() {
         <Route index element={<RoleBasedDashboard />} />
         <Route path="admin/users" element={<PendingUsers />} />
         <Route path="admin/qr" element={<QRProjector />} />
-        <Route path="calendar" element={<CalendarView />} />
-        <Route path="scanner" element={<ScannerView />} />
-        <Route path="achievements" element={<div className="animate-fade-in"><h1 className="text-2xl font-bold">Logros (Próximamente)</h1></div>} />
-        <Route path="profile" element={<div className="animate-fade-in"><h1 className="text-2xl font-bold">Perfil</h1></div>} />
+        <Route path="admin/wod" element={<WodManager />} />
+        <Route path="admin/athletes" element={<AthleteManager />} />
+        <Route path="admin/monitor" element={<Monitor />} />
+        <Route path="admin/rewards" element={<AdminGamification />} />
+        <Route path="calendar" element={<Calendar />} />
+        <Route path="scanner" element={<Scanner />} />
+        <Route path="achievements" element={<Achievements />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
     </Routes>
   );

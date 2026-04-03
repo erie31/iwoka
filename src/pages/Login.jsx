@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Dumbbell, LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.png';
 
 export default function Login() {
   const { loginWithGoogle, loginWithEmail, registerWithEmail } = useAuth();
@@ -46,10 +47,8 @@ export default function Login() {
       
       <div className="z-10 w-full max-w-md bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm">
         <div className="p-8">
-          <div className="flex justify-center mb-6">
-            <div className="bg-iwoka-500 text-gray-950 p-4 rounded-full shadow-[0_0_20px_rgba(34,197,94,0.4)]">
-              <Dumbbell size={36} className="transform -rotate-45" />
-            </div>
+          <div className="flex justify-center mb-6 text-center">
+            <img src={logo} alt="IWOKA Logo" className="w-24 h-auto drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
           </div>
           <h2 className="text-3xl font-black text-center text-white tracking-tight mb-2 uppercase italic">IWOKA Fitness</h2>
           <p className="text-gray-400 text-center mb-8 text-sm">Ingresa a tu ecosistema de entrenamiento</p>

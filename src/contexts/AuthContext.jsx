@@ -20,7 +20,25 @@ export const AuthProvider = ({ children }) => {
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setUserData(docSnap.data());
+          const data = docSnap.data();
+          // Migration: if user has old 'credits' but no 'clases' object
+          if (data.credits !== undefined && !data.clases) {
+            const updatedUser = {
+              ...data,
+              clases: {
+                todas: data.credits,
+                crossfit: 0,
+                hyrox: 0,
+                personalizado: 0
+              },
+              vencimiento: data.vencimiento || null
+            };
+            delete updatedUser.credits;
+            await setDoc(docRef, updatedUser);
+            setUserData(updatedUser);
+          } else {
+            setUserData({ ...data, vencimiento: data.vencimiento || null });
+          }
         } else {
           // Si no existe, lo creamos como 'pending'
           const newUser = {
@@ -28,7 +46,13 @@ export const AuthProvider = ({ children }) => {
             email: user.email,
             status: 'pending',
             role: 'athlete',
-            credits: 0,
+            clases: {
+              todas: 0,
+              crossfit: 0,
+              hyrox: 0,
+              personalizado: 0
+            },
+            vencimiento: null,
             exp: 0,
             level: 1,
             activeIcon: 'newbie',
