@@ -7,8 +7,12 @@ export const ACHIEVEMENTS = [
   { id: 'level_10', name: 'Aprendiz', description: 'Llegar al Nivel 10.', icon: '🥉', secret: false },
   { id: 'level_30', name: 'Veterano', description: 'Llegar al Nivel 30.', icon: '🥈', secret: false },
   { id: 'level_50', name: 'Leyenda IWOKA', description: 'Llegar al Nivel 50.', icon: '🥇', secret: false },
+  { id: 'photo_first', name: 'Como te ven te tratan', description: 'Sube tu primer foto de perfil para que todos te reconozcan.', icon: '📸', secret: false },
   
-  // Secret Achievements
+  // Logros Especiales / Secretos
+  { id: 'saturday_hero', name: 'Hermosa Mañana Verdad?', description: '¿???', secretDescription: 'Asistir todos los sábados de un mes completo.', icon: '🌅', secret: true },
+  
+  // Secret Achievements (Generic)
   { id: 'secret_1', name: 'Secreto', description: '???', icon: '❓', secret: true },
   { id: 'secret_2', name: 'Secreto', description: '???', icon: '❓', secret: true },
   { id: 'secret_3', name: 'Secreto', description: '???', icon: '❓', secret: true },

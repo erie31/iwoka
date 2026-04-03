@@ -11,6 +11,7 @@ import AthleteManager from './pages/admin/AthleteManager';
 import ClassManager from './pages/admin/ClassManager';
 import Monitor from './pages/admin/Monitor';
 import AdminGamification from './pages/admin/AdminGamification';
+import AdminPhotoReview from './pages/admin/AdminPhotoReview';
 import Calendar from './pages/Calendar';
 import Layout from './components/Layout';
 import Scanner from './pages/Scanner';
@@ -54,6 +55,7 @@ function AppRoutes() {
         <Route path="admin/athletes" element={<AthleteManager />} />
         <Route path="admin/monitor" element={<Monitor />} />
         <Route path="admin/rewards" element={<AdminGamification />} />
+        <Route path="admin/photos" element={<AdminPhotoReview />} />
         <Route path="calendar" element={<Calendar />} />
         <Route path="scanner" element={<Scanner />} />
         <Route path="achievements" element={<Achievements />} />

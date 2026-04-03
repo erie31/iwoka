@@ -113,6 +113,34 @@ export default function Scanner() {
         const currentAchievements = data.achievements || [];
         const achievementsToAdd = [];
 
+        // --- Saturday Hero Logic ---
+        const isSaturday = now.getDay() === 6;
+        const currentMonthStr = today.substring(0, 7); // YYYY-MM
+        const saturdayCheckins = data.saturdayCheckins || [];
+        
+        if (isSaturday && !saturdayCheckins.includes(today)) {
+            saturdayCheckins.push(today);
+            
+            // Calculate total Saturdays of this month
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            let totalSaturdays = 0;
+            const dateIter = new Date(year, month, 1);
+            while (dateIter.getMonth() === month) {
+                if (dateIter.getDay() === 6) totalSaturdays++;
+                dateIter.setDate(dateIter.getDate() + 1);
+            }
+
+            // Filter checkins for CURRENT month only
+            const thisMonthSaturdays = saturdayCheckins.filter(d => d.startsWith(currentMonthStr));
+            
+            if (thisMonthSaturdays.length === totalSaturdays) {
+                if (!currentAchievements.includes('saturday_hero')) {
+                    achievementsToAdd.push('saturday_hero');
+                }
+            }
+        }
+
         // Check: First Class
         if (!currentAchievements.includes('first_class')) achievementsToAdd.push('first_class');
         // Check: Early Bird (Before 9 AM)
@@ -141,6 +169,7 @@ export default function Scanner() {
           level: newLevel,
           clases: newClases,
           attendance: arrayUnion(today),
+          saturdayCheckins: saturdayCheckins, // Persist global saturdays
           achievements: arrayUnion(...achievementsToAdd)
         });
 

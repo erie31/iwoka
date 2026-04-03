@@ -1,5 +1,5 @@
 import { useAuth } from '../contexts/AuthContext';
-import { Users, QrCode, CreditCard, Flame, Calendar as CalendarIcon, Sparkles } from 'lucide-react';
+import { Users, QrCode, CreditCard, Flame, Calendar as CalendarIcon, Sparkles, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {
@@ -17,15 +17,15 @@ export default function AdminDashboard() {
         <p className="text-iwoka-500 font-medium">Control de Sistema Central</p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Proyector QR Dinámico */}
-        <button onClick={() => navigate('/admin/qr')} className="bg-gray-900 border border-gray-800 hover:border-iwoka-500 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-colors">
-          <div className="bg-iwoka-500/10 p-4 rounded-full text-iwoka-500">
+        <button onClick={() => navigate('/admin/qr')} className="bg-gray-900 border border-gray-800 hover:border-iwoka-500 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-all hover:scale-105 group">
+          <div className="bg-iwoka-500/10 p-4 rounded-full text-iwoka-500 group-hover:bg-iwoka-500 group-hover:text-gray-950 transition-colors">
             <QrCode size={40} />
           </div>
           <div className="text-center">
             <h2 className="font-bold text-white text-lg">Proyector QR</h2>
-            <p className="text-gray-400 text-sm">Proyectar QR dinámico diario para que escaneen los atletas.</p>
+            <p className="text-gray-400 text-sm italic uppercase font-black text-[10px]">Asistencia Diaria</p>
           </div>
         </button>
 
@@ -36,7 +36,7 @@ export default function AdminDashboard() {
           </div>
           <div className="text-center">
             <h2 className="font-bold text-white text-lg">Planilla Maestra</h2>
-            <p className="text-gray-400 text-sm">Configurar horarios semanales e impactar meses completos.</p>
+            <p className="text-gray-400 text-sm italic uppercase font-black text-[10px]">Impacto Mensual</p>
           </div>
         </button>
 
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
           </div>
           <div className="text-center">
             <h2 className="font-bold text-white text-lg">Monitor / Hoy</h2>
-            <p className="text-gray-400 text-sm">Ver quiénes están anotados hoy y controlar la asistencia real.</p>
+            <p className="text-gray-400 text-sm italic uppercase font-black text-[10px]">Control de Atletas</p>
           </div>
         </button>
 
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
           </div>
           <div className="text-center">
             <h2 className="font-bold text-white text-lg">Validar Atletas</h2>
-            <p className="text-gray-400 text-sm">Dar de alta a nuevos usuarios en estado "Pendiente".</p>
+            <p className="text-gray-400 text-sm italic uppercase font-black text-[10px]">Nuevos Registros</p>
           </div>
         </button>
 
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
           </div>
           <div className="text-center">
             <h2 className="font-bold text-white text-lg">WOD del Día</h2>
-            <p className="text-gray-400 text-sm">Escribir y publicar la rutina de hoy para los atletas.</p>
+            <p className="text-gray-400 text-sm italic uppercase font-black text-[10px]">Rutina Diaria</p>
           </div>
         </button>
 
@@ -80,18 +80,29 @@ export default function AdminDashboard() {
           </div>
           <div className="text-center">
             <h2 className="font-bold text-white text-lg">Finanzas / Pagos</h2>
-            <p className="text-gray-400 text-sm">Cargar clases manuales y buscar atletas.</p>
+            <p className="text-gray-400 text-sm italic uppercase font-black text-[10px]">Créditos y Abonos</p>
           </div>
         </button>
 
-        {/* Gestor de Recompensas (Gamification) */}
+        {/* Moderación de Fotos */}
+        <button onClick={() => navigate('/admin/photos')} className="bg-gray-900 border border-gray-800 hover:border-red-500 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-all hover:scale-105 group">
+          <div className="bg-red-500/10 p-4 rounded-full text-red-500 group-hover:bg-red-500 group-hover:text-white transition-colors">
+            <ShieldAlert size={40} />
+          </div>
+          <div className="text-center">
+            <h2 className="font-bold text-white text-lg">Moderación</h2>
+            <p className="text-gray-400 text-sm italic uppercase font-black text-[10px]">Fotos de Perfil</p>
+          </div>
+        </button>
+
+        {/* Gamificación Box */}
         <button onClick={() => navigate('/admin/rewards')} className="bg-gray-900 border border-gray-800 hover:border-iwoka-500 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-all hover:scale-105 group md:col-span-2">
           <div className="bg-iwoka-500/10 p-4 rounded-full text-iwoka-500 group-hover:bg-iwoka-500 group-hover:text-gray-950 transition-colors">
             <Sparkles className="animate-pulse" size={40} />
           </div>
           <div className="text-center">
             <h2 className="font-bold text-white text-lg">Gamificación Box</h2>
-            <p className="text-gray-400 text-sm">Gestionar marcos de avatar, banners y recompensas por nivel.</p>
+            <p className="text-gray-400 text-sm italic uppercase font-black text-[10px]">Marcos, Banners y Recompensas</p>
           </div>
         </button>
       </div>
