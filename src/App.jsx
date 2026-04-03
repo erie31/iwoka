@@ -2,11 +2,22 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 import Pending from './pages/Pending';
+import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import PendingUsers from './pages/admin/PendingUsers';
+import QRProjector from './pages/admin/QRProjector';
 import Layout from './components/Layout';
-
 // Mock components for now
-const Dashboard = () => <div className="animate-fade-in"><h1 className="text-2xl font-bold mb-4">Dashboard Principal</h1><p className="text-gray-400">Bienvenido al motor IWOKA. Escanea QR y revisa tu nivel.</p></div>;
+const ScannerView = () => <div className="animate-fade-in"><h1 className="text-2xl font-bold mb-4">Lector Escáner QR</h1><p className="text-gray-400">Escaneando Presentismo...</p></div>;
 const CalendarView = () => <div className="animate-fade-in"><h1 className="text-2xl font-bold mb-4">Calendario y Reservas</h1><p className="text-gray-400">Muro de la fama y turnos de las clases.</p></div>;
+
+function RoleBasedDashboard() {
+  const { userData } = useAuth();
+  if (userData?.role === 'admin') {
+    return <AdminDashboard />;
+  }
+  return <Dashboard />;
+}
 
 // Component to protect routes based on auth state and status
 function ProtectedRoute({ children }) {
@@ -30,8 +41,11 @@ function AppRoutes() {
       <Route path="/pending" element={<Pending />} />
       
       <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-        <Route index element={<Dashboard />} />
+        <Route index element={<RoleBasedDashboard />} />
+        <Route path="admin/users" element={<PendingUsers />} />
+        <Route path="admin/qr" element={<QRProjector />} />
         <Route path="calendar" element={<CalendarView />} />
+        <Route path="scanner" element={<ScannerView />} />
         <Route path="achievements" element={<div className="animate-fade-in"><h1 className="text-2xl font-bold">Logros (Próximamente)</h1></div>} />
         <Route path="profile" element={<div className="animate-fade-in"><h1 className="text-2xl font-bold">Perfil</h1></div>} />
       </Route>

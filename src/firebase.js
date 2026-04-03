@@ -5,13 +5,13 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDpMGbFIKpnlIF9YxB-Agmtc8OaN9yEuVQ",
-  authDomain: "iwoka-515dc.firebaseapp.com",
-  projectId: "iwoka-515dc",
-  storageBucket: "iwoka-515dc.firebasestorage.app",
-  messagingSenderId: "761427816763",
-  appId: "1:761427816763:web:ddd0c230ce367cf056c71e",
-  measurementId: "G-YZL7CQ966Q"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 export const app = initializeApp(firebaseConfig);
